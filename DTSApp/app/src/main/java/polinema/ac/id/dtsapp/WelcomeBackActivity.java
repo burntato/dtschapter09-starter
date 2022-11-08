@@ -14,8 +14,14 @@ import java.util.Objects;
 
 public class WelcomeBackActivity extends AppCompatActivity {
 
-    private static final String DUMMY_USERNAME = "dtsawardee";
-    private static final String DUMMY_PASSWORD = "dtsrocks";
+    private SharedPreferences sharedPrefs;
+
+    // Key-key untuk data yang disimpan di SharedPrefernces
+    private static final String USERNAME_KEY = "key_username";
+    private static final String KEEP_LOGIN_KEY = "key_keep_login";
+
+    private static final String DUMMY_USERNAME = "ian";
+    private static final String DUMMY_PASSWORD = "verycool";
 
     // Komponen
     private EditText edtUsername;
@@ -30,6 +36,13 @@ public class WelcomeBackActivity extends AppCompatActivity {
         setContentView(R.layout.activity_welcome_back);
 
         this.initComponents();
+
+        // Inisialisasi SharedPreferences
+        this.sharedPrefs = this.getSharedPreferences("dtsapp_sharedprefs", Context.MODE_PRIVATE);
+
+        this.autoLogin();
+
+        this.loadSavedUsername();
     }
 
     private void initComponents()
@@ -51,11 +64,19 @@ public class WelcomeBackActivity extends AppCompatActivity {
 
     public void onBtnLogin_Click(View view)
     {
-        Intent i = new Intent(WelcomeBackActivity.this, HomeActivity.class);
-        startActivity(i);
+        boolean valid = this.validateCredential();
 
-        this.saveUsername();
-        this.makeAutoLogin();
+        if (valid)
+        {
+            this.saveUsername();
+            this.makeAutoLogin();
+
+            Intent i = new Intent(WelcomeBackActivity.this, MainActivity.class);
+            startActivity(i);
+        }
+        else {
+            Toast.makeText(this, "Username atau password salah", Toast.LENGTH_SHORT).show();
+        }
     }
 
     public void onBtnRegister_Click(View view)
@@ -75,12 +96,36 @@ public class WelcomeBackActivity extends AppCompatActivity {
     {
         // Memeriksa apakah sebelumnya ada username yang tersimpan?
         // Jika ya, maka tampilkan username tersebut di EditText username.
+
+        String savedUsername = this.sharedPrefs.getString(USERNAME_KEY, null);
+
+        if (savedUsername != null)
+        {
+            this.edtUsername.setText(savedUsername);
+
+            this.chkRememberUsername.setChecked(true);
+        }
+    }
+
+    private boolean validateCredential()
+    {
+        String currentUsername = this.edtUsername.getText().toString();
+        String currentPassword = this.edtPassword.getText().toString();
+
+        return (Objects.equals(currentUsername, DUMMY_USERNAME)
+                && Objects.equals(currentPassword, DUMMY_PASSWORD));
     }
 
 
     private void makeAutoLogin()
     {
         // Mengatur agar selanjutnya pada saat aplikasi dibuka menjadi otomatis login
+
+        SharedPreferences.Editor editor = this.sharedPrefs.edit();
+
+        editor.putBoolean(KEEP_LOGIN_KEY, this.chkKeepLogin.isChecked());
+
+        editor.apply();
     }
 
     // QUIZ!
@@ -88,5 +133,13 @@ public class WelcomeBackActivity extends AppCompatActivity {
     {
         // Cek apakah sebelumnya aplikasi diatur agar bypass login?
         // Jika ya maka langsung buka activity berikutnya
+
+        boolean keepLogin = this.sharedPrefs.getBoolean(KEEP_LOGIN_KEY, false);
+
+        if (keepLogin)
+        {
+            Intent i = new Intent(WelcomeBackActivity.this, MainActivity.class);
+            startActivity(i);
+        }
     }
 }
