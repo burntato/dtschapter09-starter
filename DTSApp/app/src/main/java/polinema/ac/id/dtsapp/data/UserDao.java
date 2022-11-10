@@ -6,14 +6,16 @@ import android.arch.persistence.room.Insert;
 import android.arch.persistence.room.Query;
 import android.arch.persistence.room.Update;
 
+import java.util.List;
+
 @Dao
 public interface UserDao {
 
     @Query("SELECT * FROM user")
-    User[] getAllUsers();
+    List<User> selectAll();
 
     @Query("SELECT * FROM user WHERE username IN (:usernameList)")
-    User[] loadAllByIds(String[] usernameList);
+    List<User> loadAllByIds(String[] usernameList);
 
     @Query("SELECT * FROM user LIMIT 1")
     User selectOne();

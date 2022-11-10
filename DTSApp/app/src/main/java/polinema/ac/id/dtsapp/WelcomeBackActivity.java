@@ -12,6 +12,12 @@ import android.widget.Toast;
 
 import java.util.Objects;
 
+import polinema.ac.id.dtsapp.data.AppDbProvider;
+import polinema.ac.id.dtsapp.data.DTSAppDatabase;
+import polinema.ac.id.dtsapp.data.UserDao;
+
+import polinema.ac.id.dtsapp.data.User;
+
 public class WelcomeBackActivity extends AppCompatActivity {
 
     private SharedPreferences sharedPrefs;
@@ -112,8 +118,13 @@ public class WelcomeBackActivity extends AppCompatActivity {
         String currentUsername = this.edtUsername.getText().toString();
         String currentPassword = this.edtPassword.getText().toString();
 
-        return (Objects.equals(currentUsername, DUMMY_USERNAME)
-                && Objects.equals(currentPassword, DUMMY_PASSWORD));
+        // Melakukan validasi terhadap username dan password yang dimasukkan lewat userDAO
+
+        UserDao daoUser = AppDbProvider.getInstance(this.getApplicationContext()).userDao();
+
+        User user = daoUser.findByUsernameAndPassword(currentUsername, currentPassword);
+
+        return user != null;
     }
 
 
@@ -138,7 +149,7 @@ public class WelcomeBackActivity extends AppCompatActivity {
 
         if (keepLogin)
         {
-            Intent i = new Intent(WelcomeBackActivity.this, MainActivity.class);
+            Intent i = new Intent(WelcomeBackActivity.this, ProfileActivity.class);
             startActivity(i);
         }
     }

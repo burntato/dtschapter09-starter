@@ -61,13 +61,36 @@ public class ProfileActivity extends AppCompatActivity
         this.edtPhoneNumber.setText(this.currentUser.phoneNumber);
     }
 
+    private void syncData()
+    {
+        this.currentUser.password = this.edtPassword.getText().toString();
+        this.currentUser.email = this.edtEmail.getText().toString();
+        this.currentUser.phoneNumber = this.edtPhoneNumber.getText().toString();
+    }
+
     public void onBtnSave_Click(View view)
     {
+        this.syncData();
+
+        UserDao daoUser = AppDbProvider.getInstance(this).userDao();
+
+        daoUser.update(this.currentUser);
+
         Toast.makeText(this, "Your data has been updated!", Toast.LENGTH_SHORT).show();
     }
 
     public void onTxvDeleteAccount_Click(View view)
     {
+        this.syncData();
+
+        UserDao daoUser = AppDbProvider.getInstance(this).userDao();
+
+        daoUser.delete(this.currentUser);
+
         Toast.makeText(this, "Your data has been deleted..", Toast.LENGTH_SHORT).show();
+
+        Intent intent = new Intent(getApplicationContext(), WelcomeBackActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(intent);
     }
 }
